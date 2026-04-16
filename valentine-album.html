@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Love Story ♥</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #f5c6c6;
+    --rose: #d4526e;
+    --deep: #8b1a38;
+    --cream: #fdf6f0;
+    --gold: #c9a84c;
+    --petal: #fde8e8;
+    --velvet: #2a0a14;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--velvet);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 20px; height: 20px;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+  }
+  .cursor svg { animation: heartbeat 1.2s ease-in-out infinite; }
+  @keyframes heartbeat {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+  }
+
+  /* Floating petals background */
+  .petals-bg {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .petal {
+    position: absolute;
+    top: -60px;
+    font-size: 1.2rem;
+    opacity: 0;
+    animation: fallDown linear infinite;
+  }
+  @keyframes fallDown {
+    0% { opacity: 0; transform: translateY(0) rotate(0deg) translateX(0); }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.4; }
+    100% { opacity: 0; transform: translateY(110vh) rotate(720deg) translateX(60px); }
+  }
+
+  /* Intro screen */
+  #intro {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, #3d0a1e 0%, var(--velvet) 70%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: opacity 1.2s ease, transform 1.2s ease;
+  }
+  #intro.hidden { opacity: 0; transform: scale(1.05); pointer-events: none; }
+
+  .intro-heart {
+    font-size: 5rem;
+    animation: introPulse 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px rgba(212,82,110,0.8));
+  }
+  @keyframes introPulse {
+    0%,100% { transform: scale(1); filter: drop-shadow(0 0 30px rgba(212,82,110,0.8)); }
+    50% { transform: scale(1.2); filter: drop-shadow(0 0 60px rgba(212,82,110,1)); }
+  }
+
+  .intro-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--blush);
+    font-size: 2.8rem;
+    font-style: italic;
+    margin: 1.5rem 0 0.5rem;
+    text-align: center;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.5s forwards;
+  }
+  .intro-sub {
+    color: var(--gold);
+    font-size: 1.1rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 1s ease 1s forwards;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  #open-btn {
+    margin-top: 3rem;
+    padding: 0.9rem 2.8rem;
+    background: transparent;
+    border: 1px solid var(--rose);
+    color: var(--blush);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.6s forwards;
+    transition: color 0.4s;
+  }
+  #open-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--rose);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+  #open-btn:hover::before { transform: scaleX(1); }
+  #open-btn:hover { color: white; }
+
+  /* Main album */
+  #album {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    padding: 0 0 6rem;
+    opacity: 0;
+    transition: opacity 1.5s ease 0.3s;
+  }
+  #album.visible { opacity: 1; }
+
+  /* Header */
+  .album-header {
+    text-align: center;
+    padding: 5rem 2rem 3rem;
+    position: relative;
+  }
+  .album-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    color: var(--blush);
+    line-height: 1.1;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%,100% { text-shadow: 0 0 20px rgba(245,198,198,0.3); }
+    50% { text-shadow: 0 0 40px rgba(245,198,198,0.8), 0 0 80px rgba(212,82,110,0.4); }
+  }
+  .album-header .subtitle {
+    color: var(--gold);
+    font-size: 0.9rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    margin-top: 1rem;
+  }
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem auto;
+    max-width: 400px;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold));
+  }
+  .divider-line:last-child {
+    background: linear-gradient(to left, transparent, var(--gold));
+  }
+
+  /* Photo grid */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem 4rem;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  /* Photo card */
+  .photo-card {
+    position: relative;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(50px) rotate(var(--tilt, 0deg));
+    transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s, opacity 0.6s;
+    animation: cardReveal 0.8s cubic-bezier(0.34,1.56,0.64,1) var(--delay, 0s) forwards;
+  }
+  @keyframes cardReveal {
+    from { opacity: 0; transform: translateY(60px) rotate(var(--tilt,0deg)) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0)   rotate(var(--tilt,0deg)) scale(1); }
+  }
+  .photo-card:hover {
+    transform: translateY(-12px) rotate(0deg) scale(1.03) !important;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 40px rgba(212,82,110,0.3);
+    z-index: 10;
+  }
+
+  .card-inner {
+    background: var(--cream);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 0 0 6px white;
+    position: relative;
+  }
+
+  .card-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-img::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--bg, linear-gradient(135deg, #fde8e8, #f5c6c6));
+  }
+  .card-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.15));
+  }
+  .card-emoji {
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    animation: floatEmoji 3s ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+  @keyframes floatEmoji {
+    0%,100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-10px) scale(1.05); }
+  }
+
+  .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(212,82,110,0.9), rgba(139,26,56,0.95));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 2;
+    padding: 1.5rem;
+  }
+  .photo-card:hover .card-overlay { opacity: 1; }
+  .overlay-icon { font-size: 2.5rem; margin-bottom: 0.8rem; animation: spinHeart 2s linear infinite; }
+  @keyframes spinHeart {
+    0%   { transform: rotate(0deg) scale(1); }
+    25%  { transform: rotate(-15deg) scale(1.1); }
+    75%  { transform: rotate(15deg) scale(1.1); }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+  .overlay-text {
+    color: white;
+    font-style: italic;
+    font-size: 1rem;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .card-caption {
+    padding: 1.2rem 1.5rem 1.5rem;
+    background: var(--cream);
+  }
+  .card-date {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 0.3rem;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--velvet);
+    font-style: italic;
+  }
+
+  /* Heart tape decoration on cards */
+  .tape {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 24px;
+    background: rgba(212,82,110,0.5);
+    z-index: 3;
+    border-radius: 2px;
+  }
+  .tape::after {
+    content: '♥';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.8rem;
+  }
+
+  /* Featured large card */
+  .photo-card.featured {
+    grid-column: span 2;
+  }
+  .photo-card.featured .card-img {
+    aspect-ratio: 16/7;
+    font-size: 7rem;
+  }
+
+  /* Love letter section */
+  .love-letter {
+    max-width: 700px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+    text-align: center;
+    opacity: 0;
+    animation: fadeUp 1s ease 2s forwards;
+  }
+  .letter-body {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(212,82,110,0.3);
+    border-radius: 2px;
+    padding: 3rem;
+    position: relative;
+  }
+  .letter-body::before, .letter-body::after {
+    content: '❝';
+    position: absolute;
+    font-size: 6rem;
+    color: rgba(212,82,110,0.15);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+  .letter-body::before { top: -1rem; left: 1rem; }
+  .letter-body::after { content: '❞'; bottom: -2rem; right: 1rem; }
+  .letter-text {
+    color: var(--blush);
+    font-style: italic;
+    font-size: 1.3rem;
+    line-height: 2;
+  }
+  .letter-sig {
+    color: var(--gold);
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* Floating hearts burst */
+  .burst-heart {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.5rem;
+    z-index: 9998;
+    animation: burstAnim 1s ease forwards;
+  }
+  @keyframes burstAnim {
+    0%   { opacity: 1; transform: translate(0,0) scale(0.5); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.2); }
+  }
+
+  /* Ribbon banner */
+  .ribbon-banner {
+    text-align: center;
+    padding: 1.5rem;
+    background: linear-gradient(90deg, transparent, rgba(212,82,110,0.15), transparent);
+    margin: 3rem 0;
+    position: relative;
+  }
+  .ribbon-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.1rem;
+    letter-spacing: 0.3em;
+    animation: ribbonPulse 2s ease-in-out infinite;
+  }
+  @keyframes ribbonPulse {
+    0%,100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* Sparkle stars */
+  .sparkle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9997;
+    animation: sparkleFade 0.8s ease forwards;
+  }
+  @keyframes sparkleFade {
+    0%   { opacity: 1; transform: scale(0) rotate(0deg); }
+    50%  { opacity: 1; transform: scale(1.5) rotate(180deg); }
+    100% { opacity: 0; transform: scale(0.5) rotate(360deg); }
+  }
+
+  /* Modal lightbox */
+  #modal {
+    position: fixed; inset: 0;
+    background: rgba(10,0,5,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+    backdrop-filter: blur(8px);
+  }
+  #modal.open { opacity: 1; pointer-events: all; }
+  .modal-content {
+    background: var(--cream);
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    transform: scale(0.8);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 0 100px rgba(212,82,110,0.4);
+  }
+  #modal.open .modal-content { transform: scale(1); }
+  .modal-emoji { font-size: 6rem; animation: modalBounce 1s ease infinite; }
+  @keyframes modalBounce {
+    0%,100% { transform: scale(1) rotate(-5deg); }
+    50%      { transform: scale(1.1) rotate(5deg); }
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.8rem;
+    color: var(--velvet);
+    margin: 1rem 0 0.5rem;
+  }
+  .modal-msg { color: #555; font-style: italic; line-height: 1.7; }
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1.2rem;
+    background: none; border: none;
+    font-size: 1.5rem; cursor: pointer;
+    color: var(--rose);
+    transition: transform 0.3s;
+  }
+  .modal-close:hover { transform: rotate(90deg) scale(1.2); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--velvet); }
+  ::-webkit-scrollbar-thumb { background: var(--rose); border-radius: 2px; }
+
+  /* Confetti hearts on load */
+  .confetti-heart {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor">
+  <svg width="20" height="20" viewBox="0 0 20 20">
+    <path d="M10 17s-7-4.5-7-9A4 4 0 0 1 10 6a4 4 0 0 1 7 2c0 4.5-7 9-7 9z" fill="#d4526e"/>
+  </svg>
+</div>
+
+<!-- Floating petals -->
+<div class="petals-bg" id="petals"></div>
+
+<!-- Intro screen -->
+<div id="intro">
+  <div class="intro-heart">💕</div>
+  <h1 class="intro-title">Our Love Story</h1>
+  <p class="intro-sub">A Collection of Precious Moments</p>
+  <button id="open-btn" onclick="openAlbum()">Open Album ♥</button>
+</div>
+
+<!-- Main Album -->
+<div id="album">
+
+  <div class="album-header">
+    <h1>Our Love Story</h1>
+    <p class="subtitle">Valentine's Day · Forever & Always</p>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span style="color:var(--gold);font-size:1.2rem">♥</span>
+      <div class="divider-line"></div>
+    </div>
+  </div>
+
+  <div class="gallery" id="gallery">
+
+    <div class="photo-card featured" style="--tilt:-1deg;--delay:0.1s" onclick="openModal(0)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#ffd6e0,#ffb3c6,#ff85a1)">
+          <span class="card-emoji" style="--delay:0s">🌹</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">💝</div>
+          <p class="overlay-text">"From the moment I saw you, I knew our story would be the most beautiful one ever told."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">February 14, 2024</div>
+          <div class="card-title">The Day We First Met</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card" style="--tilt:2deg;--delay:0.2s" onclick="openModal(1)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#fff0f3,#ffd6e0,#ffafc5)">
+          <span class="card-emoji" style="--delay:0.3s">🌸</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">🌸</div>
+          <p class="overlay-text">"Spring walks with you feel like the whole world is in bloom."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">March 21, 2024</div>
+          <div class="card-title">Our Spring Walk</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card" style="--tilt:-2deg;--delay:0.3s" onclick="openModal(2)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#ffe4cc,#ffb347,#ff6b6b)">
+          <span class="card-emoji" style="--delay:0.6s">🌅</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">🌅</div>
+          <p class="overlay-text">"Every sunset is more beautiful when I'm watching it with you."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">June 5, 2024</div>
+          <div class="card-title">Golden Hour Together</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card" style="--tilt:1.5deg;--delay:0.4s" onclick="openModal(3)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#d4f1f4,#75c9c8,#5b86e5)">
+          <span class="card-emoji" style="--delay:0.9s">🏖️</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">🌊</div>
+          <p class="overlay-text">"Toes in the sand, hand in mine — that's where I want to be forever."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">July 18, 2024</div>
+          <div class="card-title">Our Beach Escape</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card" style="--tilt:-1.5deg;--delay:0.5s" onclick="openModal(4)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#ffecd2,#fcb69f,#ff9a9e)">
+          <span class="card-emoji" style="--delay:1.2s">🍰</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">🎂</div>
+          <p class="overlay-text">"You're sweeter than any dessert, and your smile is the best thing I've ever tasted."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">August 30, 2024</div>
+          <div class="card-title">Birthday Celebration</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card" style="--tilt:2.5deg;--delay:0.6s" onclick="openModal(5)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#e8d5b7,#f4a261,#e76f51)">
+          <span class="card-emoji" style="--delay:1.5s">🍂</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">🍁</div>
+          <p class="overlay-text">"Falling leaves and falling deeper in love with you — autumn was made for us."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">October 12, 2024</div>
+          <div class="card-title">Autumn Adventures</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card featured" style="--tilt:-0.5deg;--delay:0.7s" onclick="openModal(6)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#1a1a2e,#16213e,#4a0e8f)">
+          <span class="card-emoji" style="--delay:1.8s">✨</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">🌌</div>
+          <p class="overlay-text">"Under a million stars, I whispered your name and the universe smiled."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">December 24, 2024</div>
+          <div class="card-title">A Night Under the Stars</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card" style="--tilt:1deg;--delay:0.8s" onclick="openModal(7)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#e0f7fa,#b2ebf2,#80deea)">
+          <span class="card-emoji" style="--delay:2.1s">☃️</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">❄️</div>
+          <p class="overlay-text">"Even the coldest winter is warm when you're wrapped in my arms."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">January 1, 2025</div>
+          <div class="card-title">New Year, New Memories</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="photo-card" style="--tilt:-2deg;--delay:0.9s" onclick="openModal(8)">
+      <div class="tape"></div>
+      <div class="card-inner">
+        <div class="card-img" style="--bg:linear-gradient(135deg,#fce4ec,#f48fb1,#e91e63)">
+          <span class="card-emoji" style="--delay:2.4s">💌</span>
+        </div>
+        <div class="card-overlay">
+          <div class="overlay-icon">💌</div>
+          <p class="overlay-text">"Every letter I write to you holds a piece of my heart."</p>
+        </div>
+        <div class="card-caption">
+          <div class="card-date">February 14, 2025</div>
+          <div class="card-title">Love Notes & Letters</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Ribbon banner -->
+  <div class="ribbon-banner">
+    <p class="ribbon-text">✦ &nbsp; Every moment with you is a treasure &nbsp; ✦</p>
+  </div>
+
+  <!-- Love letter -->
+  <div class="love-letter">
+    <div class="letter-body">
+      <p class="letter-text">
+        From our very first hello to every quiet morning since — you've been the poem I never knew I was writing. 
+        This album is just a small window into all the love we've shared, 
+        and every page that remains blank is a promise of adventures yet to come.
+      </p>
+      <p class="letter-sig">— With all my heart, always ♥</p>
+    </div>
+  </div>
+
+</div><!-- end #album -->
+
+<!-- Modal -->
+<div id="modal" onclick="closeModalOnBg(event)">
+  <div class="modal-content" id="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-emoji" id="modal-emoji">💝</div>
+    <h2 class="modal-title" id="modal-title">Title</h2>
+    <p class="modal-msg" id="modal-msg">Message</p>
+  </div>
+</div>
+
+<script>
+  // --- Cursor ---
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = (e.clientX - 10) + 'px';
+    cursor.style.top  = (e.clientY - 10) + 'px';
+  });
+
+  // --- Floating petals ---
+  const petalsContainer = document.getElementById('petals');
+  const petalSymbols = ['🌸','🌺','🍃','💮','🌷','❀','✿'];
+  function spawnPetal() {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = petalSymbols[Math.floor(Math.random() * petalSymbols.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.fontSize = (0.8 + Math.random() * 1.4) + 'rem';
+    const dur = 6 + Math.random() * 10;
+    p.style.animationDuration = dur + 's';
+    p.style.animationDelay = Math.random() * 5 + 's';
+    petalsContainer.appendChild(p);
+    setTimeout(() => p.remove(), (dur + 5) * 1000);
+  }
+  for(let i=0;i<15;i++) setTimeout(spawnPetal, i * 400);
+  setInterval(spawnPetal, 1200);
+
+  // --- Heart burst on click ---
+  document.addEventListener('click', e => {
+    const hearts = ['💕','💖','💗','💓','❤️','💝','♥'];
+    for(let i=0;i<8;i++){
+      const h = document.createElement('div');
+      h.className = 'burst-heart';
+      h.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+      h.style.left = e.clientX + 'px';
+      h.style.top  = e.clientY + 'px';
+      const ang = (Math.random() * 360) * Math.PI/180;
+      const dist = 60 + Math.random()*80;
+      h.style.setProperty('--tx', (Math.cos(ang)*dist)+'px');
+      h.style.setProperty('--ty', (Math.sin(ang)*dist)+'px');
+      h.style.animationDuration = (0.6 + Math.random()*0.6)+'s';
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(), 1200);
+    }
+  });
+
+  // --- Sparkle on mousemove (throttled) ---
+  let sparkleTimer = 0;
+  document.addEventListener('mousemove', e => {
+    if(Date.now()-sparkleTimer < 80) return;
+    sparkleTimer = Date.now();
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.textContent = ['✦','✧','⋆','★'][Math.floor(Math.random()*4)];
+    s.style.left = e.clientX + 'px';
+    s.style.top  = e.clientY + 'px';
+    s.style.color = ['#d4526e','#c9a84c','#f5c6c6'][Math.floor(Math.random()*3)];
+    s.style.fontSize = (0.6+Math.random()*0.8)+'rem';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 800);
+  });
+
+  // --- Open album ---
+  function openAlbum() {
+    document.getElementById('intro').classList.add('hidden');
+    const album = document.getElementById('album');
+    album.classList.add('visible');
+    // Confetti launch
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    const syms = ['💕','💖','❤️','🌸','✨','💝'];
+    for(let i=0;i<30;i++){
+      setTimeout(()=>{
+        const c = document.createElement('div');
+        c.className = 'confetti-heart';
+        c.textContent = syms[Math.floor(Math.random()*syms.length)];
+        c.style.left = Math.random()*100+'vw';
+        c.style.top  = '-40px';
+        c.style.fontSize = (0.8+Math.random())+'rem';
+        const dur = 3+Math.random()*3;
+        c.style.animationDuration = dur+'s';
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(), dur*1000+500);
+      }, i*120);
+    }
+  }
+
+  // --- Modal data ---
+  const modalData = [
+    { emoji:'🌹', title:'The Day We First Met', msg:'That first glance across the room — time stopped. The universe conspired to bring two hearts together, and nothing has been the same since.' },
+    { emoji:'🌸', title:'Our Spring Walk', msg:'Cherry blossoms fell like confetti celebrating us. Every step felt like a dance, every laugh an echo that will ring in my heart forever.' },
+    { emoji:'🌅', title:'Golden Hour Together', msg:'The sky painted itself in every shade of love just for us. I never want to stop chasing sunsets by your side.' },
+    { emoji:'🏖️', title:'Our Beach Escape', msg:'Salt air, warm sand, and your laugh carried away on the breeze. The ocean was just a backdrop — you were the entire view.' },
+    { emoji:'🍰', title:'Birthday Celebration', msg:'Candles, cake, and the light in your eyes. Making wishes with you makes every day feel like a gift.' },
+    { emoji:'🍂', title:'Autumn Adventures', msg:'We crunched through golden leaves and held each other just a little tighter. Autumn knew exactly what it was doing when it brought us together.' },
+    { emoji:'✨', title:'A Night Under the Stars', msg:'A blanket, the milky way above, and the warmth of you beside me. The stars had nothing on the way you looked that night.' },
+    { emoji:'☃️', title:'New Year, New Memories', msg:'As midnight struck, you were the only countdown that mattered. Here\'s to every new year being our best year yet.' },
+    { emoji:'💌', title:'Love Notes & Letters', msg:'Every word I\'ve ever written to you was just a small attempt to capture what you mean to me. No letter is ever long enough.' },
+  ];
+
+  function openModal(idx) {
+    const d = modalData[idx];
+    document.getElementById('modal-emoji').textContent = d.emoji;
+    document.getElementById('modal-title').textContent = d.title;
+    document.getElementById('modal-msg').textContent = d.msg;
+    document.getElementById('modal').classList.add('open');
+  }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  function closeModalOnBg(e) { if(e.target === document.getElementById('modal')) closeModal(); }
+
+  // ESC to close modal
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
